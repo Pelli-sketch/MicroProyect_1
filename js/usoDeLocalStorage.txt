@@ -1,0 +1,73 @@
+// Definir numLinea como una variable global
+
+// Uso de localStorage
+// Guardar información en localStorage
+// localStorage.setItem('clave', 'valor');
+
+// Recuperar información de localStorage
+// var valor = localStorage.getItem('clave');
+// console.log(valor); // Imprimirá 'valor'
+
+// Eliminar una clave específica de localStorage
+// localStorage.removeItem('clave');
+
+// Limpiar todo el localStorage
+// localStorage.clear();
+
+// en setItem se debe usar una clave de tipo string y
+// un valor de tipo string.
+
+// Si necesitas guardar un objeto, debes convertirlo a JSON
+// con JSON.stringify(objeto).
+// cuando lo recuperes, debes convertirlo a objeto con JSON.parse()
+
+// Cada sitio web tiene su propio espacio de localStorage, y estos
+// están completamente aislados unos de otros. Esto significa que
+// una aplicación web no puede acceder al localStorage de otra
+// aplicación web, incluso si ambas se ejecutan en el mismo navegador.
+
+let numLinea;
+
+window.onload = function () {
+  if (localStorage.getItem("numLinea") == null) {
+    localStorage.setItem("numLinea", "0");
+    localStorage.setItem("0", "");
+  }
+  numLinea = Number(localStorage.getItem("numLinea")); // Inicializar numLinea
+  let textArea = document.getElementById("textArea");
+  if (textArea && textArea instanceof HTMLTextAreaElement) {
+    textArea.value = "";
+    for (let i = 0; i < numLinea; i++) {
+      let linea = localStorage.getItem(i.toString());
+      if (linea !== null) {
+        // Verificar que linea no sea nula
+        textArea.value += linea + "\n";
+      }
+    }
+  }
+};
+
+function agregarLinea() {
+  let linea = document.getElementById("lineInput");
+  if (!linea || !(linea instanceof HTMLInputElement) || !linea.value) {
+    return;
+  }
+  let textArea = document.getElementById("textArea");
+  if (textArea && textArea instanceof HTMLTextAreaElement) {
+    localStorage.setItem(numLinea.toString(), linea.value);
+    numLinea++;
+    localStorage.setItem("numLinea", numLinea.toString());
+    textArea.value += linea.value + "\n";
+  }
+  linea.value = "";
+}
+
+function borrarTexto() {
+  let textArea = document.getElementById("textArea");
+  if (textArea && textArea instanceof HTMLTextAreaElement) {
+    textArea.value = "";
+    localStorage.clear();
+    localStorage.setItem("numLinea", "0");
+    localStorage.setItem("0", "");
+  }
+}
