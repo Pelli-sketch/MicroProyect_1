@@ -5,13 +5,13 @@
   <meta charset="UTF-8">
   <title>Simon Says Game</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-
   <link href='https://fonts.googleapis.com/css?family=Original+Surfer&effect=emboss' rel='stylesheet' type='text/css'>
   <link rel="stylesheet" href="style.css">
 
+  <!-- Victory audio file -->
   <audio id="winSound">
-
   <source src="https://assets.mixkit.co/active_storage/sfx/257/257-preview.mp3"></source>
+  <!--Buttons audio files-->
   </audio>
   <audio id="clip1">
   	<source src="https://s3.amazonaws.com/freecodecamp/simonSound1.mp3"></source>
@@ -36,9 +36,12 @@
     <div id="bottomleft"></div>
     <div id="bottomright"></div>
     <div id="inner-circle">
+      <!--TITTLE-->
       <div id="title" class="font-effect-emboss">SIMON</div>
       <div id="switches">
+        <!--CHECKBOX-ON/OFF-->
         <input type="checkbox" class="toggle" id="on">
+        <!--START BUTTON-->
         <button class="button" id="start">PLAY</button>
       </div>
       <div class="text1">
@@ -49,6 +52,7 @@
         SCORE
       </div>
     </div>
+    <!--USER REGISTRATION/LOGIN-->
     <div id="userModal" class="modal">
         <div class="modal-content">
             <span class="close">&times;</span>
@@ -73,6 +77,7 @@
     </div>
   </div>
 </div>
+ <!--SCOREBOARD-->
 <div class="scoreboard">
     <h2>Top Players</h2>
     <div class="score-entry">
@@ -93,6 +98,7 @@
     <div id="playerRank" style="margin-top: 15px; color: #888; text-align: center;"></div>
 </div>
 
+<!--JAVASCRIPT-->
   <script  src="index.js"></script>
 
 </body>

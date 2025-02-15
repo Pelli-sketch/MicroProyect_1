@@ -11,6 +11,7 @@ let win;
 let currentPlayer = null;
 let allPlayers = JSON.parse(localStorage.getItem('players') || '[]');
 
+
 const turnCounter = document.querySelector("#turn");
 const topLeft = document.querySelector("#topleft");
 const topRight = document.querySelector("#topright");
@@ -71,6 +72,7 @@ startButton.addEventListener('click', (event) => {
   }
 });
 
+//MODULO REGISTRO/LOGIN
 // Se actualizo el registration/login handler
 registrationForm.addEventListener('submit', async (e) => {
   e.preventDefault();
@@ -161,10 +163,27 @@ span.onclick = function() {
   modal.style.display = "none";
 }
 
+//MODULO PUNTUACION
+/**
+ * Actualiza el scoreboard con los top players en función de sus scores.
+ *
+ * @function updateScoreboard
+ * @returns {void}
+ *
+ * @description
+ * Esta función ordena a los players por sus scores en orden descendente.
+ * Luego, actualiza los nombres y los scores de los 3 top players en el scoreboard.
+ * También actualiza el rank del player y la muestra.
+ *
+ * @param {Array} sorted - Array de players sorted por sus scores en orden descendiente.
+ * @param {NodeList} entries - NodeList de las entradas del scoreboard.
+ * @param {Object} player - Object representando al player.
+ * @param {HTMLElement} rankElement - HTML element mostrando el rank del player.
+ */
 function updateScoreboard() {
   // busca players por score
   const sorted = [...allPlayers].sort((a, b) => b.score - a.score);
-  
+
   // Actualiza a los top 3
   const entries = document.querySelectorAll('.score-entry');
   entries.forEach((entry, index) => {
@@ -174,22 +193,44 @@ function updateScoreboard() {
           entry.querySelector('.score').textContent = player.score;
       }
   });
-  
+
   // actualiza al player display actual
   if (currentPlayer) {
       const rank = sorted.findIndex(p => p.id === currentPlayer.id) + 1;
       const totalPlayers = sorted.length;
       const rankElement = document.getElementById('playerRank');
-      
+
       if (rank > 0) {
           const percentage = Math.round((rank / totalPlayers) * 100);
           rankElement.textContent = `Your rank: Top ${percentage}%`;
       }
   }
 }
+
 function saveToLocalStorage() {
   localStorage.setItem('playerData', JSON.stringify(currentPlayer));
 }
+
+//MODULO DEL JUEGO
+/**
+ * Comienza un new game de Simon Says.
+ *
+ * @function play
+ * @returns {void}
+ *
+ * @description
+ * Esta función inicializa el estado del game, genera una nueva secuencia aleatoria
+ * e inicia el bucle del game.
+ *
+ * @param {boolean} [win=false] - indica si la ronda se ganó.
+ * @param {Array} [order=[]] - La secuencia de colores generada por la computadora.
+ * @param {Array} [playerOrder=[]] - La secuencia de colores introducida por el jugador.
+ * @param {number} [flash=0] - Index del color actual que se está mostrando.
+ * @param {number} [intervalId=0] - ID del temporizador de intervalo para el bucle del game.
+ * @param {number} [turn=1] - Número de turno actual.
+ * @param {boolean} [good=true] - Indica si la secuencia del jugador coincide con la secuencia de la computadora.
+ * @param {boolean} [compTurn=true] - Indica si es el turno de la computadora de hacer parpadear los colores.
+ */
 function play() {
   win = false;
   order = [];
@@ -207,6 +248,15 @@ function play() {
   intervalId = setInterval(gameTurn, 800);
 }
 
+//MODULO LOGICA
+/**
+ * Maneja la lógica de turnos del game.
+ * Esta función es responsable de cambiar el estado del game en función del turno actual.
+ * Borra los botones del game, actualiza el estado del game y reproduce los sonidos asociados a cada botón.
+ *
+ * @function gameTurn
+ * @returns {void}
+ */
 function gameTurn() {
   on = false;
 
@@ -228,6 +278,7 @@ function gameTurn() {
     }, 200);
   }
 }
+
 
 function one() {
   if (noise) {
@@ -256,15 +307,34 @@ function three() {
   bottomLeft.style.backgroundColor = "yellow";
 }
 
+
+/**
+ * Reproduce el sonido asociado con el cuarto(fourth) botón y cambia su color de fondo.
+ *
+ * @function four
+ * @returns {void}
+ */
 function four() {
+  // Comprueba si el ruido está habilitado
   if (noise) {
+    // Obteniene el elemento de audio asociado con el cuarto botón
     let audio = document.getElementById("clip4");
+    // Reproduce el sonido
     audio.play();
   }
+  // Establece el ruido en verdadero para permitir reproducir el sonido nuevamente
   noise = true;
+  // Cambia el color de fondo del cuarto botón
   bottomRight.style.backgroundColor = "lightskyblue";
 }
 
+
+/**
+ * Limpia el color de fondo de los botones del juego.
+ *
+ * @function clearColor
+ * @returns {void}
+ */
 function clearColor() {
   topLeft.style.backgroundColor = "darkgreen";
   topRight.style.backgroundColor = "darkred";
@@ -272,6 +342,21 @@ function clearColor() {
   bottomRight.style.backgroundColor = "darkblue";
 }
 
+
+/**
+ * Genera un flash del color de fondo de los botones del game en sus respectivos colores.
+ *
+ * @function flashColor
+ * @returns {void}
+ *
+ * @example
+ * flashColor();
+ * // Los colores de fondo de los botones del game se establecerán de la siguiente manera:
+ * // topLeft: lightgreen
+ * // topRight: tomato
+ * // bottomLeft: yellow
+ * // bottomRight: lightskyblue
+ */
 function flashColor() {
   topLeft.style.backgroundColor = "lightgreen";
   topRight.style.backgroundColor = "tomato";
@@ -279,19 +364,41 @@ function flashColor() {
   bottomRight.style.backgroundColor = "lightskyblue";
 }
 
+
+/**
+ * Detector de eventos para el evento de clic del botón superior izquierdo.
+ * Esta función maneja la lógica del game cuando se hace clic en el botón superior izquierdo.
+ *
+ * @param {Event} event 
+ *
+ * @returns {void}
+ */
 topLeft.addEventListener('click', (event) => {
+  // Revisa si el game se activo
   if (on) {
+    // Añade el número del botón al orden del player
     playerOrder.push(1);
+    // Revisa el orden del player
     check();
+    // Reproducir el sonido y cambiar el color del botón topLeft
     one();
+    // Si no se gana el game, borra el color después de un delay.
     if(!win) {
       setTimeout(() => {
         clearColor();
       }, 300);
     }
   }
-})
+});
 
+/**
+ * Event listener para el boton topRight cuando le de click.
+ * Esta función maneja la lógica del game cuando se hace clic en el botón topRight.
+ *
+ * @param {Event} event
+ *
+ * @returns {void}
+ */
 topRight.addEventListener('click', (event) => {
   if (on) {
     playerOrder.push(2);
@@ -303,7 +410,7 @@ topRight.addEventListener('click', (event) => {
       }, 300);
     }
   }
-})
+});
 
 bottomLeft.addEventListener('click', (event) => {
   if (on) {
@@ -316,7 +423,7 @@ bottomLeft.addEventListener('click', (event) => {
       }, 300);
     }
   }
-})
+});
 
 bottomRight.addEventListener('click', (event) => {
   if (on) {
@@ -330,7 +437,14 @@ bottomRight.addEventListener('click', (event) => {
     }
   }
 })
-
+//MODULO DEL INGAME FUNCTIONS
+/**
+ * Checks the player's order against the computer's order.
+ * Updates the game state based on the comparison.
+ *
+ * @function check
+ * @returns {void}
+ */
 function check() {
   if (playerOrder[playerOrder.length - 1] !== order[playerOrder.length - 1]) {
       good = false;
@@ -354,7 +468,7 @@ function check() {
               playerOrder = [];
               good = true;
               intervalId = setInterval(gameTurn, 800);
-          
+
       }, 800);
       noise = false;
   }
@@ -371,6 +485,7 @@ function check() {
 
 
 
+
 function updateUI() {
   if (currentPlayer) {
       logoutBtn.style.display = 'block';
@@ -383,28 +498,38 @@ function updateUI() {
   updateScoreboard();
 }
 
-
+//MODULO VICTORIAS DEL GAME
+/**
+ * Maneja la condición de victoria del game.
+ * Actualiza el puntaje del player, reproduce un sonido de victoria, actualiza al player en el array allPlayers,
+ * guarda los datos actualizados del jugador y de allPlayers en localStorage, actualiza el scoreboard,
+ * y muestra un mensaje del rank/rango al player.
+ * Después de una demora de 3 segundos, el game continúa con la siguiente ronda.
+ *
+ * @function winGame
+ * @returns {void}
+ */
 function winGame() {
   flashColor();
   turnCounter.innerHTML = "WIN!";
-  
+
   // Actualiza el score
   currentPlayer.score += turn * 10;
   if (noise) {
     let audio = document.getElementById("winSound");
     audio.play();
   }
-  
-  // actualiza al player en el allPlayers array
+
+  // Actualiza al player en el array de allPlayers
   const playerIndex = allPlayers.findIndex(p => p.id === currentPlayer.id);
   if (playerIndex > -1) {
     allPlayers[playerIndex] = currentPlayer;
   }
-  
-  // Guarda en localStorage
+
+  // guarda en localStorage
   localStorage.setItem('currentPlayer', JSON.stringify(currentPlayer));
   localStorage.setItem('players', JSON.stringify(allPlayers)); // Add this line
-  
+
   updateScoreboard();
   showRankMessage();
 
@@ -415,10 +540,25 @@ function winGame() {
   }, 3000);
 }
 
+
+/**
+ * Maneja la condición de victoria del game.
+ * Actualiza el puntaje del player, reproduce un sonido de victoria, actualiza al player en el array allPlayers,
+ * guarda los datos actualizados del player y de allPlayers en localStorage, actualiza el marcador,
+ * y muestra un mensaje de clasificación al player.
+ * Después de una demora de 3 segundos, el game continúa con la siguiente ronda.
+ *
+ * @function winGame
+ * @returns {void}
+ */
 function showRankMessage() {
+  // Ordena a los players por puntuación en orden descendente.
   const sorted = [...allPlayers].sort((a, b) => b.score - a.score);
+
+  // Encuentra el ranking del player actual
   const rank = sorted.findIndex(p => p.id === currentPlayer.id) + 1;
-  
+
+  // Mostrar diferentes mensajes según el ranking del player.
   if (rank === 1) {
       alert("🏆 New High Score! You're #1!");
   } else if (rank <= 3) {
@@ -427,6 +567,7 @@ function showRankMessage() {
       alert(`👍 Good job! You're ranked #${rank} out of ${sorted.length}`);
   }
 }
+
 
 //MODULO DE SEGURIDAD
 // Funciones para el helper
