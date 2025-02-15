@@ -10,6 +10,9 @@ let on = false;
 let win;
 let currentPlayer = null;
 let allPlayers = JSON.parse(localStorage.getItem('players') || '[]');
+//bromita interna
+let motorSound = document.getElementById("motorSound");
+let motorAttempts = 0;
 
 
 const turnCounter = document.querySelector("#turn");
@@ -48,11 +51,16 @@ onButton.addEventListener('click', (event) => {
   if (onButton.checked == true) {
     on = true;
     turnCounter.innerHTML = "-";
+
+    motorSound.currentTime = 0;
+    motorSound.play();
   } else {
     on = false;
     turnCounter.innerHTML = "";
     clearColor();
     clearInterval(intervalId);
+    motorSound.pause();
+    motorSound.currentTime = 0;
   }
 });
 
@@ -73,7 +81,7 @@ startButton.addEventListener('click', (event) => {
 });
 
 //MODULO REGISTRO/LOGIN
-// Se actualizo el registration/login handler
+// Actualiza el registration/login handler
 registrationForm.addEventListener('submit', async (e) => {
   e.preventDefault();
   const name = playerNameInput.value.trim();
@@ -90,6 +98,7 @@ registrationForm.addEventListener('submit', async (e) => {
       const existingPlayer = allPlayers.find(p => p.name.toLowerCase() === name.toLowerCase());
 
       if (isLogin) {
+          // logica del logeo
           if (!existingPlayer) {
               alert('User not found');
               return;
@@ -100,6 +109,7 @@ registrationForm.addEventListener('submit', async (e) => {
           }
           currentPlayer = existingPlayer;
       } else {
+          // Logica del registro
           const confirmPassword = document.getElementById('confirmPassword').value;
           if (password !== confirmPassword) {
               alert('Passwords do not match');
@@ -123,12 +133,10 @@ registrationForm.addEventListener('submit', async (e) => {
       localStorage.setItem('currentPlayer', JSON.stringify(currentPlayer));
       updateUI();
       modal.style.display = "none";
-      showPostLoginMenu();
       playerNameInput.value = "";
       document.getElementById('password').value = "";
-      if (document.getElementById('confirmPassword')) {
-          document.getElementById('confirmPassword').value = "";
-      }
+      document.getElementById('confirmPassword').value = "";
+      
   } catch (error) {
       alert(error.message);
   }
@@ -458,7 +466,14 @@ bottomRight.addEventListener('click', (event) => {
 function check() {
   if (playerOrder[playerOrder.length - 1] !== order[playerOrder.length - 1]) {
     good = false;
-}
+    if(on) {
+      motorAttempts++;
+      motorSound.currentTime = 0.3 * (motorAttempts % 3); // Vary start point
+      motorSound.playbackRate = 1 + (motorAttempts * 0.1);
+      motorSound.play();
+    }    
+  }
+
   // Actualiza el winning condition a (5 rounds = 50 points)
   if (turn % 5 === 0 && good && !win) { // !win check
     winGame();
@@ -601,20 +616,33 @@ async function hashPassword(password) {
   }
 }
 
+/**
+ * Activa el modo de autenticación entre inicio de sesión y registro.
+ * Actualiza el título del modal, el texto del botón de envío y la visibilidad del campo de confirmación de contraseña.
+ * También actualiza el texto del enlace para alternar entre inicio de sesión y registro.
+ * Borra el campo de confirmación de contraseña al cambiar al modo de inicio de sesión.
+ *
+ * @returns {void}
+ */
 function toggleAuthMode() {
   const isLogin = modalTitle.textContent.includes('Login');
-  const confirmPasswordInput = document.getElementById('confirmPassword');
+  const confirmPasswordInput = document.getElementById('confirmPassword'); 
+
   modalTitle.textContent = isLogin ? 'Register Player' : 'Login';
   submitAuth.textContent = isLogin ? 'Register' : 'Login';
-  document.getElementById('confirmPasswordGroup').style.display = isLogin ? 'none' : 'block';
-  confirmPasswordInput.required = isLogin
+  // Mostrar/ocultar el campo de confirmación de contraseña
+  document.getElementById('confirmPasswordGroup').style.display = isLogin ? 'block' : 'none';
+  confirmPasswordInput.required = isLogin;
   authToggle.innerHTML = isLogin ? 
       'Already have an account? <a href="#" onclick="toggleAuthMode()">Login instead</a>' :
       'Don\'t have an account? <a href="#" onclick="toggleAuthMode()">Register instead</a>';
-  if (!isLogin){
-      document.getElementById("confirmPassword").value = "";
+
+  // Borrar el campo de confirmación de contraseña al cambiar al inicio de sesión
+  if (!isLogin) {
+      document.getElementById('confirmPassword').value = "";
   }
 }
+
 
 // Funciones para el login y registro
 function showPostLoginMenu() {
