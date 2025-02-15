@@ -603,12 +603,17 @@ async function hashPassword(password) {
 
 function toggleAuthMode() {
   const isLogin = modalTitle.textContent.includes('Login');
+  const confirmPasswordInput = document.getElementById('confirmPassword');
   modalTitle.textContent = isLogin ? 'Register Player' : 'Login';
   submitAuth.textContent = isLogin ? 'Register' : 'Login';
   document.getElementById('confirmPasswordGroup').style.display = isLogin ? 'none' : 'block';
+  confirmPasswordInput.required = isLogin
   authToggle.innerHTML = isLogin ? 
       'Already have an account? <a href="#" onclick="toggleAuthMode()">Login instead</a>' :
       'Don\'t have an account? <a href="#" onclick="toggleAuthMode()">Register instead</a>';
+  if (!isLogin){
+      document.getElementById("confirmPassword").value = "";
+  }
 }
 
 // Funciones para el login y registro
