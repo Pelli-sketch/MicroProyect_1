@@ -8,8 +8,11 @@ let intervalId;
 let strict = false;
 let noise = true;
 let on = false;
-
 let win;
+let currentPlayer = {
+  name: '',
+  score: 0
+};
 
 const turnCounter = document.querySelector("#turn");
 const topLeft = document.querySelector("#topleft");
@@ -19,12 +22,26 @@ const bottomRight = document.querySelector("#bottomright");
 const strictButton = document.querySelector("#strict");
 const onButton = document.querySelector("#on");
 const startButton = document.querySelector("#start");
+const modal = document.getElementById("userModal");
+const span = document.getElementsByClassName("close")[0];
+const registrationForm = document.getElementById("registrationForm");
+const playerNameInput = document.getElementById("playerName");
 
 strictButton.addEventListener('click', (event) => {
   if (strictButton.checked == true) {
     strict = true;
   } else {
     strict = false;
+  }
+});
+
+window.addEventListener('load', () => {
+  const savedData = localStorage.getItem('playerData');
+  if (savedData) {
+    currentPlayer = JSON.parse(savedData);
+    updateScoreboard();
+  } else {
+    showModal();
   }
 });
 
@@ -41,11 +58,47 @@ onButton.addEventListener('click', (event) => {
 });
 
 startButton.addEventListener('click', (event) => {
-  if (on || win) {
+  if ((on || win) && currentPlayer.name) {
     play();
+  } else if (!currentPlayer.name) {
+    showModal();
   }
 });
 
+registrationForm.addEventListener('submit', (e) => {
+  e.preventDefault();
+  const name = playerNameInput.value.trim();
+  
+  if (name) {
+    currentPlayer.name = name;
+    currentPlayer.score = 0;
+    saveToLocalStorage();
+    updateScoreboard();
+    modal.style.display = "none";
+  }
+});
+
+function showModal() {
+  modal.style.display = "block";
+}
+
+window.onclick = function(event) {
+  if (event.target == modal) {
+    modal.style.display = "none";
+  }
+}
+span.onclick = function() {
+  modal.style.display = "none";
+}
+
+function updateScoreboard() {
+  const scoreEntries = document.querySelectorAll('.score-entry');
+  scoreEntries[0].querySelector('.player').textContent = `${currentPlayer.name}:`;
+  scoreEntries[0].querySelector('.score').textContent = currentPlayer.score;
+}
+function saveToLocalStorage() {
+  localStorage.setItem('playerData', JSON.stringify(currentPlayer));
+}
 function play() {
   win = false;
   order = [];
@@ -230,6 +283,15 @@ function check() {
 function winGame() {
   flashColor();
   turnCounter.innerHTML = "WIN!";
-  on = false;
-  win = true;
+  
+  // Update score
+  currentPlayer.score += turn * 10;
+  saveToLocalStorage();
+  updateScoreboard();
+
+  setTimeout(() => {
+    win = true;
+    clearColor();
+    play();
+  }, 3000);
 }
