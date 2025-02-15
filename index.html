@@ -77,6 +77,24 @@
     </div>
   </div>
 </div>
+
+<!--POST LOGIN MENU-->
+<div id="postLoginMenu" class="modal">
+  <div class="modal-content" style="text-align: center">
+      <h2>Welcome, <span id="menuPlayerName"></span>!</h2>
+      <button class="menu-button" onclick="continuePlaying()">Continue Playing</button>
+      <button class="menu-button" onclick="showFullScoreboard()">View Top Scores</button>
+  </div>
+</div>
+
+<!--FULL SCOREBOARD-->
+<div id="fullScoreboard" class="modal">
+  <div class="modal-content" style="max-height: 80vh; overflow-y: auto">
+      <span class="close" onclick="closeFullScoreboard()">&times;</span>
+      <h2>All Time Scores</h2>
+      <div id="fullScoresList"></div>
+  </div>
+</div>
  <!--SCOREBOARD-->
 <div class="scoreboard">
     <h2>Top Players</h2>

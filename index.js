@@ -123,6 +123,7 @@ registrationForm.addEventListener('submit', async (e) => {
       localStorage.setItem('currentPlayer', JSON.stringify(currentPlayer));
       updateUI();
       modal.style.display = "none";
+      showPostLoginMenu();
       playerNameInput.value = "";
       document.getElementById('password').value = "";
       if (document.getElementById('confirmPassword')) {
@@ -142,6 +143,8 @@ logoutBtn.addEventListener('click', () => {
   
   localStorage.setItem('players', JSON.stringify(allPlayers));
   localStorage.removeItem('currentPlayer');
+  document.getElementById('postLoginMenu').style.display = 'none';
+  document.getElementById('fullScoreboard').style.display = 'none';
   
   currentPlayer = null;
   updateUI();
@@ -238,14 +241,21 @@ function play() {
   flash = 0;
   intervalId = 0;
   turn = 1;
-  turnCounter.innerHTML = 1;
   good = true;
-  for (var i = 0; i < 20; i++) {
-    order.push(Math.floor(Math.random() * 4) + 1);
-  }
   compTurn = true;
-
+  
+  // Genera la secuencia inicial
+  for (let i = 0; i < 50; i++) { // genera una secuencia inicial mas larga
+      order.push(Math.floor(Math.random() * 4) + 1);
+  }
+  
+  // Reinicia
+  turnCounter.innerHTML = "1";
+  clearColor();
+  
+  // empieza
   intervalId = setInterval(gameTurn, 800);
+  updateScoreboard();
 }
 
 //MODULO LOGICA
@@ -439,47 +449,44 @@ bottomRight.addEventListener('click', (event) => {
 })
 //MODULO DEL INGAME FUNCTIONS
 /**
- * Checks the player's order against the computer's order.
- * Updates the game state based on the comparison.
+ * Comprueba el orden del player con el orden de la computadora.
+ * Actualiza el estado del game según la comparación.
  *
  * @function check
  * @returns {void}
  */
 function check() {
   if (playerOrder[playerOrder.length - 1] !== order[playerOrder.length - 1]) {
-      good = false;
-  }
-
+    good = false;
+}
   // Actualiza el winning condition a (5 rounds = 50 points)
-  if (turn === 5 && good) {
-      winGame();
-      return;
+  if (turn % 5 === 0 && good && !win) { // !win check
+    winGame();
+    return;
   }
 
   if (good === false) {
-      flashColor();
-      turnCounter.innerHTML = "NO!";
-      setTimeout(() => {
-          turnCounter.innerHTML = turn;
-          clearColor();
-
-              compTurn = true;
-              flash = 0;
-              playerOrder = [];
-              good = true;
-              intervalId = setInterval(gameTurn, 800);
-
-      }, 800);
-      noise = false;
+    flashColor();
+    turnCounter.innerHTML = "NO!";
+    setTimeout(() => {
+        turnCounter.innerHTML = turn;
+        clearColor();
+            compTurn = true;
+            flash = 0;
+            playerOrder = [];
+            good = true;
+            intervalId = setInterval(gameTurn, 800);
+    }, 800);
+    noise = false;
   }
 
   if (turn === playerOrder.length && good && !win) {
-      turn++;
-      playerOrder = [];
-      compTurn = true;
-      flash = 0;
-      turnCounter.innerHTML = turn;
-      intervalId = setInterval(gameTurn, 800);
+    turn++;
+    playerOrder = [];
+    compTurn = true;
+    flash = 0;
+    turnCounter.innerHTML = turn;
+    intervalId = setInterval(gameTurn, 800);
   }
 }
 
@@ -510,11 +517,12 @@ function updateUI() {
  * @returns {void}
  */
 function winGame() {
+  win = true;
   flashColor();
   turnCounter.innerHTML = "WIN!";
 
   // Actualiza el score
-  currentPlayer.score += turn * 10;
+  currentPlayer.score += 5 * 10;
   if (noise) {
     let audio = document.getElementById("winSound");
     audio.play();
@@ -523,21 +531,30 @@ function winGame() {
   // Actualiza al player en el array de allPlayers
   const playerIndex = allPlayers.findIndex(p => p.id === currentPlayer.id);
   if (playerIndex > -1) {
-    allPlayers[playerIndex] = currentPlayer;
+      allPlayers[playerIndex] = currentPlayer;
   }
-
-  // guarda en localStorage
+  
+  localStorage.setItem('players', JSON.stringify(allPlayers));
   localStorage.setItem('currentPlayer', JSON.stringify(currentPlayer));
-  localStorage.setItem('players', JSON.stringify(allPlayers)); // Add this line
-
   updateScoreboard();
   showRankMessage();
-
+  
   setTimeout(() => {
-    win = true;
-    clearColor();
-    play();
-  }, 3000);
+      win = false;
+      turn++; // Incrementa siguiente round
+      turnCounter.innerHTML = turn;
+      playerOrder = [];
+      compTurn = true;
+      flash = 0;
+      clearColor();
+      
+      // extiende la sequencia
+      if (turn > order.length) {
+          order.push(Math.floor(Math.random() * 4) + 1);
+      }
+      
+      intervalId = setInterval(gameTurn, 800);
+  }, 1500);
 }
 
 
@@ -594,3 +611,37 @@ function toggleAuthMode() {
       'Don\'t have an account? <a href="#" onclick="toggleAuthMode()">Register instead</a>';
 }
 
+// Funciones para el login y registro
+function showPostLoginMenu() {
+  document.getElementById('menuPlayerName').textContent = currentPlayer.name;
+  document.getElementById('postLoginMenu').style.display = 'block';
+}
+
+function continuePlaying() {
+  document.getElementById('postLoginMenu').style.display = 'none';
+  startButton.click();
+}
+
+function showFullScoreboard() {
+  const sortedPlayers = [...allPlayers].sort((a, b) => b.score - a.score);
+  const scoresList = document.getElementById('fullScoresList');
+  scoresList.innerHTML = '';
+  
+  sortedPlayers.forEach((player, index) => {
+      const entry = document.createElement('div');
+      entry.className = 'full-score-entry';
+      entry.innerHTML = `
+          <span>${index + 1}. ${player.name}</span>
+          <span>${player.score}</span>
+      `;
+      scoresList.appendChild(entry);
+  });
+  
+  document.getElementById('postLoginMenu').style.display = 'none';
+  document.getElementById('fullScoreboard').style.display = 'block';
+}
+
+function closeFullScoreboard() {
+  document.getElementById('fullScoreboard').style.display = 'none';
+  showPostLoginMenu();
+}

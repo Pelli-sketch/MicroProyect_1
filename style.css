@@ -184,6 +184,44 @@ body {
     text-align: center;
     color: #888888;
   }
+
+  .menu-button {
+    display: block;
+    width: 80%;
+    margin: 15px auto;
+    padding: 15px;
+    font-size: 1.2em;
+    background-color: #385a94;
+    color: white;
+    border: none;
+    border-radius: 25px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+
+  .menu-button:hover {
+    background-color: #2a4370;
+  }
+
+  #fullScoresList {
+    margin-top: 20px;
+  }
+
+  .full-score-entry {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px;
+    margin: 5px 0;
+    background-color: rgba(50,50,50,0.8);
+    border-radius: 5px;
+  }
+
+  #fullScoreboard .modal-content {
+    max-width: 400px;
+    width: 90%;
+  }
+
+  
   
   
   .score-entry {
