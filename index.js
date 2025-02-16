@@ -133,6 +133,7 @@ registrationForm.addEventListener('submit', async (e) => {
       localStorage.setItem('currentPlayer', JSON.stringify(currentPlayer));
       updateUI();
       modal.style.display = "none";
+      showPostLoginMenu();
       playerNameInput.value = "";
       document.getElementById('password').value = "";
       document.getElementById('confirmPassword').value = "";
@@ -155,6 +156,12 @@ logoutBtn.addEventListener('click', () => {
   document.getElementById('fullScoreboard').style.display = 'none';
   
   currentPlayer = null;
+  on = false;
+  win = false;
+  clearInterval(intervalId);
+  clearColor();
+  turnCounter.innerHTML = "";
+  onButton.checked = false;  
   updateUI();
   showModal();
 });
@@ -243,6 +250,8 @@ function saveToLocalStorage() {
  * @param {boolean} [compTurn=true] - Indica si es el turno de la computadora de hacer parpadear los colores.
  */
 function play() {
+  document.getElementById('postLoginMenu').style.display = 'none';
+  document.getElementById('fullScoreboard').style.display = 'none';  
   win = false;
   order = [];
   playerOrder = [];
@@ -677,4 +686,44 @@ function showFullScoreboard() {
 function closeFullScoreboard() {
   document.getElementById('fullScoreboard').style.display = 'none';
   showPostLoginMenu();
+  
 }
+
+/**
+ * Retorna el game al main menu.
+ *
+ * @function returnToMainMenu
+ * @returns {void}
+ *
+ * @description
+ * Esta función detiene el game, borra el estado del game, oculta otros elementos
+ * y muestra el menú o modal posterior al inicio de sesión en función de si el player ha iniciado sesión o no.
+ *
+ * @param {boolean} on
+ * @param {boolean} win
+ * @param {number} intervalId
+ * @param {HTMLElement} turnCounter
+ * @param {HTMLElement} onButton
+ * @param {Object} currentPlayer
+ * @param {HTMLElement} fullScoreboard
+ */
+function returnToMainMenu() {
+  // Detener el game
+  on = false;
+  win = false;
+  clearInterval(intervalId);
+  clearColor();
+  turnCounter.innerHTML = "";
+  onButton.checked = false;
+
+  // Mostrar menú post-login
+  if(currentPlayer) {
+      showPostLoginMenu();
+  } else {
+      showModal();
+  }
+
+  // Ocultar otros elementos
+  document.getElementById('fullScoreboard').style.display = 'none';
+}
+
